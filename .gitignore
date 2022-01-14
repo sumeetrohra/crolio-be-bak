@@ -65,4 +65,8 @@ node_modules/
 # dotenv environment variables file
 .env
 
+# Mac folder
 *.DS_Store
+
+# firebase runtime configuration
+*.runtimeconfig.json
