@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-const cryptoJS = require("crypto-js");
+import cryptoJS from "crypto-js";
 
 const _jsonToURI = (jsonObj: { [x: string]: string }) => {
   let output: string = "";
@@ -10,7 +10,9 @@ const _jsonToURI = (jsonObj: { [x: string]: string }) => {
   return output.slice(0, -1);
 };
 
-export const createVauldPayload = (payload: { [key: string]: any }) => ({
+export const createVauldPayload = (payload: {
+  [key: string]: any;
+}): { [key: string]: any } => ({
   ...payload,
   orgID: functions.config().vauld.orgid as string,
 });

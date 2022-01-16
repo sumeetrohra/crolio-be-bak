@@ -1,4 +1,4 @@
-const config = {
+module.exports = {
   root: true,
   env: {
     es6: true,
@@ -16,15 +16,28 @@ const config = {
   parserOptions: {
     project: ["tsconfig.json", "tsconfig.dev.json"],
     sourceType: "module",
+    tsconfigRootDir: __dirname,
   },
   ignorePatterns: [
     "/lib/**/*", // Ignore built files.
   ],
   plugins: ["@typescript-eslint", "import"],
   rules: {
-    quotes: ["error", "double"],
-    "import/no-unresolved": 0,
+    "quote-props": "off",
+    quotes: "off",
+    "import/no-unresolved": "off",
+    "object-curly-spacing": "off",
+    indent: [
+      "error",
+      2,
+      {
+        SwitchCase: 1,
+        ignoredNodes: ["ConditionalExpression"],
+      },
+    ],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "space-before-function-paren": "off",
+    "new-cap": "off",
   },
 };
-
-export default config;

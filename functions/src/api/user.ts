@@ -7,7 +7,9 @@ import { createVauldAccount } from "../vauldAPI/kyc";
 
 export const createUserAccount = functions.https.onCall(
   async (data: ICreateUserAccountRequestData, context) => {
-    if (!context.auth || !context.auth.uid) throw new Error("Unauthorized");
+    if (!context.auth || !context.auth.uid) {
+      throw new Error("Unauthorized");
+    }
 
     // Create vauld user account
     const userId = context.auth.uid;
@@ -18,8 +20,9 @@ export const createUserAccount = functions.https.onCall(
       }) as ICreateVauldUserRequestData
     );
     const vauldData = vauldUserDetails.data;
-    if (!vauldData.success && vauldData.error)
+    if (!vauldData.success && vauldData.error) {
       throw new Error(vauldData.error?.message);
+    }
 
     // Create vauld firestore account
     const db = admin.firestore();
