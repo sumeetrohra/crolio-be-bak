@@ -1,26 +1,25 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { ICreateVauldUserRequestData } from "../sensitive_types/_kyc";
 import { ICreateUserAccountRequestData } from "../types/kyc";
-import { createVauldPayload } from "../utils/vauld";
-import { createVauldAccount } from "../vauldAPI/kyc";
+import { createVauldAccount } from "../vauldAPI/user";
+import { getUID } from "../utils/auth";
 
 export const createUserAccount = functions.https.onCall(
   async (data: ICreateUserAccountRequestData, context) => {
-    if (!context.auth || !context.auth.uid) {
-      throw new Error("Unauthorized");
-    }
+    const userId = getUID(context);
 
     // Create vauld user account
-    const userId = context.auth.uid;
-    const vauldUserDetails = await createVauldAccount(
-      createVauldPayload({
-        userIdentifier: userId,
-        isCorporate: false,
-      }) as ICreateVauldUserRequestData
-    );
+    const vauldUserDetails = await createVauldAccount({
+      userIdentifier: userId,
+      isCorporate: false,
+    });
+
     const vauldData = vauldUserDetails.data;
     if (!vauldData.success && vauldData.error) {
+      functions.logger.log(
+        "User creation failed, here's the response from vauld: ",
+        vauldData
+      );
       throw new Error(vauldData.error?.message);
     }
 
@@ -28,10 +27,14 @@ export const createUserAccount = functions.https.onCall(
     const db = admin.firestore();
     const userRef = await db.collection("users").doc(userId);
 
+    const today = new Date();
+
     await userRef.create({
       userInfo: {
         firstName: data.firstName,
         lastName: data.lastName,
+        createdAt: today,
+        updatedAt: today,
       },
       _private: {
         vauldUserData: {
@@ -47,7 +50,7 @@ export const createUserAccount = functions.https.onCall(
       success: true,
       data: {
         message: "user created",
-        uid: context.auth.uid,
+        uid: userId,
       },
     };
   }
