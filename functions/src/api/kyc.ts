@@ -2,16 +2,24 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { getUID } from "../utils/auth";
 import {
+  approveVauldInstantKYC,
   initiateVauldKYC,
+  initiateVauldManualKYCVerification,
   requestVauldKYCDocsUploadURL,
   verifyVauldUploadedKYCDoc,
+  verifyVauldUploadedSelfie,
 } from "../vauldAPI/kyc";
 import {
   IVerifyUploadedDocRequestData,
   UploadedKYCDocType,
 } from "../types/kyc";
-import { IVerifyVauldKYCUploadedDocRequestData } from "../sensitive_types/_kyc";
+import {
+  IApproveVauldInstantKYCRequestData,
+  IVerifyVauldKYCUploadedDocRequestData,
+  IVerifyVauldKYCUploadedSelfieRequestData,
+} from "../sensitive_types/_kyc";
 
+// TODO: Add return types here to make it easier to find types
 export const initiateKYC = functions.https.onCall(async (data, context) => {
   const userId = getUID(context);
 
@@ -58,5 +66,51 @@ export const verifyUploadedKYCDoc = functions.https.onCall(
     const result = await verifyVauldUploadedKYCDoc(payload);
 
     return result;
+  }
+);
+
+export const verifyUploadedKYCSelfie = functions.https.onCall(
+  async (data, context) => {
+    const userId = getUID(context);
+
+    // TODO: Abstract out crud methods
+    // Get user data
+    const db = admin.firestore();
+    const userRef = await db.collection("users").doc(userId).get();
+    const userData = userRef.data();
+
+    const payload: IVerifyVauldKYCUploadedSelfieRequestData = {
+      userID: userData?._private.vauldUserData.userID,
+    };
+
+    const result = await verifyVauldUploadedSelfie(payload);
+
+    return result;
+  }
+);
+
+export const requestKYCApproval = functions.https.onCall(
+  async (data, context) => {
+    const userId = getUID(context);
+
+    // TODO: Abstract out crud methods
+    // Get user data
+    const db = admin.firestore();
+    const userRef = await db.collection("users").doc(userId).get();
+    const userData = userRef.data();
+
+    const payload: IApproveVauldInstantKYCRequestData = {
+      userID: userData?._private.vauldUserData.userID,
+    };
+
+    const result = await approveVauldInstantKYC(payload);
+
+    if (result.success) {
+      return result;
+    }
+
+    const manualKYCResult = await initiateVauldManualKYCVerification(payload);
+
+    return manualKYCResult;
   }
 );
