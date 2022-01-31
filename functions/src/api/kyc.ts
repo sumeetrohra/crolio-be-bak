@@ -56,13 +56,12 @@ export const verifyUploadedKYCDoc = functions.https.onCall(
     const userRef = await db.collection("users").doc(userId).get();
     const userData = userRef.data();
 
-    let payload: IVerifyVauldKYCUploadedDocRequestData = {
+    const payload: IVerifyVauldKYCUploadedDocRequestData = {
       documentType: data.documentType,
       userID: userData?._private.vauldUserData.userID,
+      frontOrBack: data.frontOrBack,
     };
-    if (data.documentType === UploadedKYCDocType.AADHAR) {
-      payload = { ...payload, frontOrBack: data.frontOrBack };
-    }
+
     const result = await verifyVauldUploadedKYCDoc(payload);
 
     return result;
