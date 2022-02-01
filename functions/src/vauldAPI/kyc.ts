@@ -13,7 +13,7 @@ import {
   IVerifyVauldKYCUploadedDocResponseData,
   IVerifyVauldKYCUploadedSelfieRequestData,
   IVerifyVauldKYCUploadedSelfieResponseData,
-} from "../sensitive_types/_kyc";
+} from "./sensitive_types/_kyc";
 import request from "./_axiosInstance";
 
 export const initiateVauldKYC = (

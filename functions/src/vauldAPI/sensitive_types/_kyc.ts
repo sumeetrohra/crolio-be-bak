@@ -1,4 +1,4 @@
-import { UploadedDocFace, UploadedKYCDocType } from "../types/kyc";
+import { UploadedDocFace, UploadedKYCDocType } from "../../types/kyc";
 import { _vauldBaseRequestData, _vauldBaseResponseData } from "./_baseTypes";
 
 export interface IInitiateVauldKYCRequestData extends _vauldBaseRequestData {
