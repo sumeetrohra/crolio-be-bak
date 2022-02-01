@@ -1,7 +1,7 @@
 import {
   ICreateVauldUserRequestData,
   ICreateVauldUserAccountResponseData,
-} from "./sensitive_types/_user";
+} from "./_types/_user";
 import request from "./_axiosInstance";
 
 export const createVauldAccount = (

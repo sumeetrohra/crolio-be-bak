@@ -17,7 +17,7 @@ import {
   IApproveVauldInstantKYCRequestData,
   IVerifyVauldKYCUploadedDocRequestData,
   IVerifyVauldKYCUploadedSelfieRequestData,
-} from "../vauldAPI/sensitive_types/_kyc";
+} from "../vauldAPI/_types/_kyc";
 
 // TODO: Add return types here to make it easier to find types
 export const initiateKYC = functions.https.onCall(async (data, context) => {
