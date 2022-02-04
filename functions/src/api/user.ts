@@ -3,6 +3,11 @@ import * as admin from "firebase-admin";
 import { ICreateUserAccountRequestData } from "../types/kyc";
 import { createVauldAccount } from "../vauldAPI/user";
 import { getUID } from "../utils/auth";
+import {
+  USERS_COLLECTION,
+  USER_PRIVATE_COLLECTION,
+  USER_PRIVATE_VAULD_DATA_DOC,
+} from "./constants";
 
 export const createUserAccount = functions.https.onCall(
   async (data: ICreateUserAccountRequestData, context) => {
@@ -14,7 +19,7 @@ export const createUserAccount = functions.https.onCall(
       isCorporate: false,
     });
 
-    const vauldData = vauldUserDetails.data;
+    const vauldData = vauldUserDetails;
     if (!vauldData.success && vauldData.error) {
       functions.logger.log(
         "User creation failed, here's the response from vauld: ",
@@ -25,7 +30,7 @@ export const createUserAccount = functions.https.onCall(
 
     // Create vauld firestore account
     const db = admin.firestore();
-    const userRef = await db.collection("users").doc(userId);
+    const userRef = await db.collection(USERS_COLLECTION).doc(userId);
 
     const today = new Date();
 
@@ -36,15 +41,14 @@ export const createUserAccount = functions.https.onCall(
         createdAt: today,
         updatedAt: today,
       },
-      _private: {
-        vauldUserData: {
-          userID: vauldData.data?.userID,
-          kycStatus: {
-            status: "open",
-          },
-        },
-      },
     });
+
+    await userRef
+      .collection(USER_PRIVATE_COLLECTION)
+      .doc(USER_PRIVATE_VAULD_DATA_DOC)
+      .create({
+        vauldUserID: vauldData.data?.userID,
+      });
 
     return {
       success: true,

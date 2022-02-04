@@ -18,6 +18,11 @@ import {
   IVerifyVauldKYCUploadedDocRequestData,
   IVerifyVauldKYCUploadedSelfieRequestData,
 } from "../vauldAPI/_types/_kyc";
+import {
+  USERS_COLLECTION,
+  USER_PRIVATE_COLLECTION,
+  USER_PRIVATE_VAULD_DATA_DOC,
+} from "./constants";
 
 // TODO: Add return types here to make it easier to find types
 export const initiateKYC = functions.https.onCall(async (data, context) => {
@@ -25,14 +30,20 @@ export const initiateKYC = functions.https.onCall(async (data, context) => {
 
   // TODO: Abstract out crud methods
   // Get user data
+  // TODO: Add sensitive_type here to understand id type
   const db = admin.firestore();
-  const userRef = await db.collection("users").doc(userId).get();
+  const userRef = await db
+    .collection(USERS_COLLECTION)
+    .doc(userId)
+    .collection(USER_PRIVATE_COLLECTION)
+    .doc(USER_PRIVATE_VAULD_DATA_DOC)
+    .get();
   const userData = userRef.data();
 
   // initiate kyc
   const result = await initiateVauldKYC({
     docType: UploadedKYCDocType.AADHAR,
-    userID: userData?._private.vauldUserData.userID,
+    userID: userData?.vauldUserID,
   });
 
   if (!result.success) {
@@ -40,7 +51,7 @@ export const initiateKYC = functions.https.onCall(async (data, context) => {
   }
 
   const docsUploadURLs = await requestVauldKYCDocsUploadURL({
-    userID: userData?._private.vauldUserData.userID,
+    userID: userData?.vauldUserID,
   });
 
   return docsUploadURLs;
@@ -52,13 +63,19 @@ export const verifyUploadedKYCDoc = functions.https.onCall(
 
     // TODO: Abstract out crud methods
     // Get user data
+    // TODO: Add sensitive_type here to understand id type
     const db = admin.firestore();
-    const userRef = await db.collection("users").doc(userId).get();
+    const userRef = await db
+      .collection(USERS_COLLECTION)
+      .doc(userId)
+      .collection(USER_PRIVATE_COLLECTION)
+      .doc(USER_PRIVATE_VAULD_DATA_DOC)
+      .get();
     const userData = userRef.data();
 
     const payload: IVerifyVauldKYCUploadedDocRequestData = {
       documentType: data.documentType,
-      userID: userData?._private.vauldUserData.userID,
+      userID: userData?.vauldUserID,
       frontOrBack: data.frontOrBack,
     };
 
@@ -74,6 +91,7 @@ export const verifyUploadedKYCSelfie = functions.https.onCall(
 
     // TODO: Abstract out crud methods
     // Get user data
+    // TODO: Add sensitive_type here to understand id type
     const db = admin.firestore();
     const userRef = await db.collection("users").doc(userId).get();
     const userData = userRef.data();
@@ -94,6 +112,7 @@ export const requestKYCApproval = functions.https.onCall(
 
     // TODO: Abstract out crud methods
     // Get user data
+    // TODO: Add sensitive_type here to understand id type
     const db = admin.firestore();
     const userRef = await db.collection("users").doc(userId).get();
     const userData = userRef.data();

@@ -9,11 +9,14 @@ export type IInitiateVauldKYCResponseData = _vauldBaseResponseData;
 
 export type IGetVauldKYCDocsUploadURLRequestData = _vauldBaseRequestData;
 
-export interface IGetVauldKYCDocsUploadURLResponseData {
-  documentFront: string;
-  documentBack: string;
-  selfie: string;
-  panCard: string;
+export interface IGetVauldKYCDocsUploadURLResponseData
+  extends _vauldBaseResponseData {
+  data: {
+    documentFront: string;
+    documentBack: string;
+    selfie: string;
+    panCard: string;
+  };
 }
 
 export interface IVerifyVauldKYCUploadedDocRequestData

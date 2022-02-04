@@ -10,11 +10,8 @@ interface _VauldCrateUserResponseData {
   userID: string;
 }
 
-interface _vauldCrateUserResponse extends _vauldBaseResponseData {
+export interface ICreateVauldUserAccountResponseData
+  extends _vauldBaseResponseData {
   data?: _VauldCrateUserResponseData;
   error?: _VauldCrateUserResponseData;
-}
-
-export interface ICreateVauldUserAccountResponseData {
-  data: _vauldCrateUserResponse;
 }
