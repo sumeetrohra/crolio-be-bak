@@ -93,11 +93,16 @@ export const verifyUploadedKYCSelfie = functions.https.onCall(
     // Get user data
     // TODO: Add sensitive_type here to understand id type
     const db = admin.firestore();
-    const userRef = await db.collection("users").doc(userId).get();
+    const userRef = await db
+      .collection(USERS_COLLECTION)
+      .doc(userId)
+      .collection(USER_PRIVATE_COLLECTION)
+      .doc(USER_PRIVATE_VAULD_DATA_DOC)
+      .get();
     const userData = userRef.data();
 
     const payload: IVerifyVauldKYCUploadedSelfieRequestData = {
-      userID: userData?._private.vauldUserData.userID,
+      userID: userData?.vauldUserID,
     };
 
     const result = await verifyVauldUploadedSelfie(payload);
@@ -114,16 +119,22 @@ export const requestKYCApproval = functions.https.onCall(
     // Get user data
     // TODO: Add sensitive_type here to understand id type
     const db = admin.firestore();
-    const userRef = await db.collection("users").doc(userId).get();
+    const userRef = await db
+      .collection(USERS_COLLECTION)
+      .doc(userId)
+      .collection(USER_PRIVATE_COLLECTION)
+      .doc(USER_PRIVATE_VAULD_DATA_DOC)
+      .get();
     const userData = userRef.data();
 
     const payload: IApproveVauldInstantKYCRequestData = {
-      userID: userData?._private.vauldUserData.userID,
+      userID: userData?.vauldUserID,
     };
 
     const result = await approveVauldInstantKYC(payload);
 
     if (result.success) {
+      await admin.auth().setCustomUserClaims(userId, { isKYCDone: true });
       return result;
     }
 
